@@ -1,23 +1,51 @@
-import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import DynamicNavbar from "./components/DynamicNavbar";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { Home } from "./pages/Home";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "./redux/store";
 
-function App() {
+import LoginPage from "./pages/LoginPage";
+import CalendarPage from "./pages/CalendarPage";
+import DashboardPage from "./pages/DashboardPage";
+
+import PrivateRoute from "./components/PrivateRoute";
+import MainNavbar from "./components/MainNavbar";
+import RoomsPage from "./pages/RoomsPage";
+
+const App: React.FC = () => {
+  const { token } = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = !!token;
+
   return (
-    <BrowserRouter>
-      <DynamicNavbar />
+    <>
+      <MainNavbar />
+
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Home />} />
-        {/* <Route path="/crm" element={<CrmHome />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />  */}
+        {/* Dashboard pubblica */}
+        <Route path="/" element={<DashboardPage />} />
+
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
+
+        {/* CalendarPage protetta: solo staff/admin */}
+        <Route
+          path="/calendar"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Receptionist", "RoomStaff"]}>
+              <CalendarPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/rooms"
+          element={
+            <PrivateRoute allowedRoles={["Admin"]}>
+              <RoomsPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
-}
+};
 
 export default App;
