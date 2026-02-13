@@ -18,7 +18,7 @@ export const createGuest = createAsyncThunk<GuestDto, GuestDto, { rejectValue: s
   try {
     return await createGuestAPI(dto);
   } catch (err: unknown) {
-    return rejectWithValue(err instanceof Error ? err.message : "Errore create guest");
+    return rejectWithValue(err instanceof Error ? err.message : "Create guest error");
   }
 });
 
@@ -28,7 +28,7 @@ export const updateGuest = createAsyncThunk<GuestDto, { id: string; dto: GuestDt
     try {
       return await updateGuestAPI(id, dto);
     } catch (err: unknown) {
-      return rejectWithValue(err instanceof Error ? err.message : "Errore update guest");
+      return rejectWithValue(err instanceof Error ? err.message : "Error updating guest");
     }
   },
 );
@@ -38,7 +38,7 @@ export const deleteGuest = createAsyncThunk<string, string, { rejectValue: strin
     await deleteGuestAPI(id);
     return id;
   } catch (err: unknown) {
-    return rejectWithValue(err instanceof Error ? err.message : "Errore delete guest");
+    return rejectWithValue(err instanceof Error ? err.message : "Delete guest error");
   }
 });
 
@@ -60,7 +60,7 @@ const guestSlice = createSlice({
       })
       .addCase(createGuest.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "Errore creazione guest";
+        state.error = action.payload ?? "Create guest error";
       })
 
       // UPDATE
@@ -73,7 +73,7 @@ const guestSlice = createSlice({
       })
       .addCase(updateGuest.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "Errore update guest";
+        state.error = action.payload ?? "Error updating guest";
       })
 
       // DELETE
@@ -86,7 +86,7 @@ const guestSlice = createSlice({
       })
       .addCase(deleteGuest.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "Errore delete guest";
+        state.error = action.payload ?? "Delete guest error";
       });
   },
 });

@@ -11,7 +11,7 @@ interface Props {
   roomId: string;
   checkIn: Date;
   checkOut: Date;
-  onCreated?: () => void; // callback per ricaricare CalendarPage
+  onCreated?: () => void;
 }
 
 const CreateReservationModal: React.FC<Props> = ({ show, onHide, roomId, checkIn, checkOut, onCreated }) => {
@@ -56,7 +56,7 @@ const CreateReservationModal: React.FC<Props> = ({ show, onHide, roomId, checkIn
     };
 
     dispatch(createNewReservation(dto)).then(() => {
-      if (onCreated) onCreated(); // Ricarica CalendarPage
+      if (onCreated) onCreated();
       onHide();
     });
   };
@@ -64,19 +64,19 @@ const CreateReservationModal: React.FC<Props> = ({ show, onHide, roomId, checkIn
   return (
     <Modal show={show} onHide={onHide} onShow={handleOnShow}>
       <Modal.Header closeButton>
-        <Modal.Title>Nuova Prenotazione</Modal.Title>
+        <Modal.Title>New Reservation</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-2">
-            <Form.Label>Nome</Form.Label>
+            <Form.Label>First Name</Form.Label>
             <Form.Control type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Cognome</Form.Label>
+            <Form.Label>Last Name</Form.Label>
             <Form.Control type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
           </Form.Group>
 
@@ -86,7 +86,7 @@ const CreateReservationModal: React.FC<Props> = ({ show, onHide, roomId, checkIn
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Telefono</Form.Label>
+            <Form.Label>Phone</Form.Label>
             <Form.Control type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
           </Form.Group>
 
@@ -101,13 +101,13 @@ const CreateReservationModal: React.FC<Props> = ({ show, onHide, roomId, checkIn
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Note</Form.Label>
+            <Form.Label>Notes</Form.Label>
             <Form.Control as="textarea" value={note} onChange={(e) => setNote(e.target.value)} />
           </Form.Group>
 
           <div className="d-flex justify-content-end mt-3">
             <Button type="submit" disabled={loading}>
-              {loading ? <Spinner animation="border" size="sm" /> : "Crea"}
+              {loading ? <Spinner animation="border" size="sm" /> : "Create"}
             </Button>
           </div>
         </Form>

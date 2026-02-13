@@ -9,6 +9,10 @@ import DashboardPage from "./pages/DashboardPage";
 import PrivateRoute from "./components/PrivateRoute";
 import MainNavbar from "./components/MainNavbar";
 import RoomsPage from "./pages/RoomsPage";
+import PaymentMethodsPage from "./pages/PaymentMethodsPage";
+import StaffPage from "./pages/StaffPage";
+import RegisterCustomerPage from "./pages/RegisterCustomerPage";
+import RoomDetailsCustomer from "./pages/RoomDetailsCustomer";
 
 const App: React.FC = () => {
   const { token } = useSelector((state: RootState) => state.auth);
@@ -19,12 +23,14 @@ const App: React.FC = () => {
       <MainNavbar />
 
       <Routes>
-        {/* Dashboard pubblica */}
+        {/* Dashboard */}
         <Route path="/" element={<DashboardPage />} />
+        {/* RoomDetails Customer Front */}
+        <Route path="/roomdetails/:id" element={<RoomDetailsCustomer />} />
 
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
 
-        {/* CalendarPage protetta: solo staff/admin */}
+        {/* CalendarPage */}
         <Route
           path="/calendar"
           element={
@@ -33,6 +39,8 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         />
+
+        {/* RoomsPage */}
         <Route
           path="/rooms"
           element={
@@ -41,6 +49,26 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         />
+        {/* PaymentMethodsPage */}
+        <Route
+          path="/payment-methods"
+          element={
+            <PrivateRoute allowedRoles={["Admin"]}>
+              <PaymentMethodsPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/staff"
+          element={
+            <PrivateRoute allowedRoles={["Admin"]}>
+              <StaffPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterCustomerPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

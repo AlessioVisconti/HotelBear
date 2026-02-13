@@ -1,14 +1,12 @@
 import type { RoomCalendarDto } from "../redux/features/calendar/calendarTypes";
-import { getToken } from "../utils/token"; // getter dai cookie
+import { getToken } from "../utils/token";
 
-// Helper per header con token
 function getAuthHeader() {
   const token = getToken();
-  if (!token) throw new Error("Utente non autenticato");
+  if (!token) throw new Error("Unauthenticated user");
   return { Authorization: `Bearer ${token}` };
 }
 
-// Fetch calendario stanze
 export const fetchRoomCalendar = async (startDate?: string, endDate?: string): Promise<RoomCalendarDto[]> => {
   const query = new URLSearchParams();
   if (startDate) query.append("startDate", startDate);
@@ -23,7 +21,7 @@ export const fetchRoomCalendar = async (startDate?: string, endDate?: string): P
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "Errore nel fetch del calendario");
+    throw new Error(errorData.message || "Error fetching calendar");
   }
 
   return response.json();

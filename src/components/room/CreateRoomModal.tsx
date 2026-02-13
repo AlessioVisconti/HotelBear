@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { createRoom } from "../../redux/features/room/roomSlice";
 import type { CreateRoomDto } from "../../redux/features/room/roomTypes";
+import { TiPlus } from "react-icons/ti";
 
 interface Props {
   show: boolean;
@@ -42,7 +43,7 @@ const CreateRoomModal: React.FC<Props> = React.memo(({ show, onHide }) => {
 
   const handleSave = useCallback(async (): Promise<void> => {
     if (!formData.roomNumber.trim() || !formData.roomName.trim()) {
-      alert("Numero e nome camera sono obbligatori");
+      alert("Room number and name are required");
       return;
     }
 
@@ -51,14 +52,11 @@ const CreateRoomModal: React.FC<Props> = React.memo(({ show, onHide }) => {
       onHide();
       setFormData(initialFormData);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Errore creazione camera";
+      const message = err instanceof Error ? err.message : "Room creation error";
       alert(message);
     }
   }, [dispatch, formData, onHide, initialFormData]);
 
-  /* -----------------------------
-     CLOSE MODAL
-  ----------------------------- */
   const handleClose = useCallback(() => {
     setFormData(initialFormData);
     onHide();
@@ -67,41 +65,43 @@ const CreateRoomModal: React.FC<Props> = React.memo(({ show, onHide }) => {
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>➕ Crea Nuova Camera</Modal.Title>
+        <Modal.Title>
+          <TiPlus /> Create New Room
+        </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
         <Form>
           <Row className="mb-3">
             <Col>
-              <Form.Label>Numero Camera</Form.Label>
+              <Form.Label>Room Number</Form.Label>
               <Form.Control name="roomNumber" value={formData.roomNumber} onChange={handleChange} />
             </Col>
 
             <Col>
-              <Form.Label>Nome Camera</Form.Label>
+              <Form.Label>Room Name</Form.Label>
               <Form.Control name="roomName" value={formData.roomName} onChange={handleChange} />
             </Col>
           </Row>
 
           <Form.Group className="mb-3">
-            <Form.Label>Descrizione</Form.Label>
+            <Form.Label>Description</Form.Label>
             <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleChange} />
           </Form.Group>
 
           <Row className="mb-3">
             <Col>
-              <Form.Label>Letti</Form.Label>
+              <Form.Label>Beds</Form.Label>
               <Form.Control type="number" name="beds" value={formData.beds} onChange={handleChange} />
             </Col>
 
             <Col>
-              <Form.Label>Tipo Letti</Form.Label>
+              <Form.Label>Beds Type</Form.Label>
               <Form.Control name="bedsTypes" value={formData.bedsTypes} onChange={handleChange} />
             </Col>
 
             <Col>
-              <Form.Label>Prezzo / Notte (€)</Form.Label>
+              <Form.Label>Price for Night (€)</Form.Label>
               <Form.Control type="number" name="priceForNight" value={formData.priceForNight} onChange={handleChange} />
             </Col>
           </Row>
@@ -110,16 +110,16 @@ const CreateRoomModal: React.FC<Props> = React.memo(({ show, onHide }) => {
 
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
-          Annulla
+          Cancel
         </Button>
 
         <Button variant="success" onClick={handleSave} disabled={loadingCrud}>
           {loadingCrud ? (
             <>
-              <Spinner size="sm" animation="border" /> Creazione...
+              <Spinner size="sm" animation="border" /> Creation...
             </>
           ) : (
-            "✅ Crea Camera"
+            "The room was created"
           )}
         </Button>
       </Modal.Footer>

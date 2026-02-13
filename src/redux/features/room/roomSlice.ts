@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, isPending, isFulfilled, isRejected } from "@reduxjs/toolkit";
-import type { RoomState, RoomListDto, RoomDetailDto, CreateRoomDto, UpdateRoomDto } from "./roomTypes";
+import type { RoomState, RoomListDto, RoomDetailDto, CreateRoomDto, UpdateRoomDto, RoomDayClickResultDto } from "./roomTypes";
+
 import {
   fetchRoomsAPI,
   fetchRoomByIdAPI,
@@ -9,19 +10,33 @@ import {
   addRoomPhotoAPI,
   deleteRoomPhotoAPI,
   setRoomPhotoCoverAPI,
+  fetchAvailableRoomsAPI,
 } from "../../../api/roomApi";
 import type { AppDispatch } from "../../store";
 
-const initialState: RoomState = {
+// Aggiornamento tipi
+interface RoomStateWithCheck extends RoomState {
+  roomDayCheck: RoomDayClickResultDto | null;
+  loadingCheck: boolean;
+  availableRooms: RoomListDto[];
+  loadingAvailable: boolean;
+}
+
+// initialState
+const initialState: RoomStateWithCheck = {
   list: [],
   selected: null,
   loadingList: false,
   loadingDetail: false,
   loadingCrud: false,
   error: null,
+  roomDayCheck: null,
+  loadingCheck: false,
+  availableRooms: [],
+  loadingAvailable: false,
 };
 
-//Thunks
+// Thunks
 export const fetchRooms = createAsyncThunk<RoomListDto[], void, { rejectValue: string }>("room/fetchAll", async (_, { rejectWithValue }) => {
   try {
     return await fetchRoomsAPI();
@@ -46,7 +61,7 @@ export const createRoom = createAsyncThunk<RoomDetailDto, CreateRoomDto, { rejec
       await dispatch(fetchRooms());
       return created;
     } catch (err: unknown) {
-      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore create room");
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Create room error");
     }
   },
 );
@@ -56,14 +71,14 @@ export const updateRoom = createAsyncThunk<void, { id: string; dto: UpdateRoomDt
   async ({ id, dto }, { rejectWithValue, dispatch }) => {
     try {
       if (dto.roomNumber?.trim() === "" || dto.roomName?.trim() === "") {
-        return rejectWithValue("Il numero e il nome della camera sono obbligatori");
+        return rejectWithValue("Room number and name are required");
       }
 
       await updateRoomAPI(id, dto);
       await dispatch(fetchRooms());
       await dispatch(fetchRoomById(id));
     } catch (err: unknown) {
-      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore update room");
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Update room error");
     }
   },
 );
@@ -75,7 +90,7 @@ export const deleteRoom = createAsyncThunk<void, string, { rejectValue: string; 
       await deleteRoomAPI(id);
       await dispatch(fetchRooms());
     } catch (err: unknown) {
-      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore delete room");
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Delete room error");
     }
   },
 );
@@ -86,11 +101,11 @@ export const addRoomPhoto = createAsyncThunk<
   { rejectValue: string; dispatch: AppDispatch }
 >("room/addPhoto", async (data, { rejectWithValue, dispatch }) => {
   try {
-    if (data.currentPhotosCount >= 3) throw new Error("Limite massimo di 3 foto per stanza raggiunto");
+    if (data.currentPhotosCount >= 3) throw new Error("Maximum limit of 3 photos per room reached");
     await addRoomPhotoAPI(data.roomId, data.file, data.isCover);
     await dispatch(fetchRoomById(data.roomId));
   } catch (err: unknown) {
-    return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore upload foto");
+    return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Photo upload error");
   }
 });
 
@@ -101,7 +116,7 @@ export const deleteRoomPhoto = createAsyncThunk<void, { photoId: string; roomId:
       await deleteRoomPhotoAPI(photoId);
       await dispatch(fetchRoomById(roomId));
     } catch (err: unknown) {
-      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore delete foto");
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Delete photo error");
     }
   },
 );
@@ -113,12 +128,24 @@ export const setRoomPhotoCover = createAsyncThunk<void, { photoId: string; roomI
       await setRoomPhotoCoverAPI(photoId);
       await dispatch(fetchRoomById(roomId));
     } catch (err: unknown) {
-      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Errore set cover");
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Set cover error");
     }
   },
 );
 
-//Slice
+// Nuovo thunk tipizzato
+export const fetchAvailableRooms = createAsyncThunk<RoomListDto[], { checkIn: string; checkOut: string }, { rejectValue: string }>(
+  "room/fetchAvailableRooms",
+  async ({ checkIn, checkOut }, { rejectWithValue }) => {
+    try {
+      return await fetchAvailableRoomsAPI(checkIn, checkOut);
+    } catch (err: unknown) {
+      return err instanceof Error ? rejectWithValue(err.message) : rejectWithValue("Fetch available rooms error");
+    }
+  },
+);
+
+// Slice
 const roomSlice = createSlice({
   name: "room",
   initialState,
@@ -129,9 +156,18 @@ const roomSlice = createSlice({
     clearRoomError(state) {
       state.error = null;
     },
+    clearRoomDayCheck(state) {
+      state.roomDayCheck = null;
+      state.loadingCheck = false;
+    },
+    clearAvailableRooms(state) {
+      state.availableRooms = [];
+      state.loadingAvailable = false;
+    },
   },
   extraReducers: (builder) => {
     builder
+      // fetchRooms
       .addCase(fetchRooms.pending, (state) => {
         state.loadingList = true;
         state.error = null;
@@ -142,8 +178,10 @@ const roomSlice = createSlice({
       })
       .addCase(fetchRooms.rejected, (state, action) => {
         state.loadingList = false;
-        state.error = action.payload ?? "Errore caricamento lista";
+        state.error = action.payload ?? "Error loading list";
       })
+
+      // fetchRoomById
       .addCase(fetchRoomById.pending, (state) => {
         state.loadingDetail = true;
         state.error = null;
@@ -154,8 +192,24 @@ const roomSlice = createSlice({
       })
       .addCase(fetchRoomById.rejected, (state, action) => {
         state.loadingDetail = false;
-        state.error = action.payload ?? "Errore caricamento dettaglio";
+        state.error = action.payload ?? "Detail loading error";
       })
+
+      // fetchAvailableRooms
+      .addCase(fetchAvailableRooms.pending, (state) => {
+        state.loadingAvailable = true;
+        state.error = null;
+        state.availableRooms = [];
+      })
+      .addCase(fetchAvailableRooms.fulfilled, (state, action) => {
+        state.loadingAvailable = false;
+        state.availableRooms = action.payload;
+      })
+      .addCase(fetchAvailableRooms.rejected, (state, action) => {
+        state.loadingAvailable = false;
+        state.error = action.payload ?? "Check avilable rooms error";
+      })
+      // CRUD & photo matchers
       .addMatcher(isPending(createRoom, updateRoom, deleteRoom, addRoomPhoto, deleteRoomPhoto, setRoomPhotoCover), (state) => {
         state.loadingCrud = true;
         state.error = null;
@@ -165,10 +219,10 @@ const roomSlice = createSlice({
       })
       .addMatcher(isRejected(createRoom, updateRoom, deleteRoom, addRoomPhoto, deleteRoomPhoto, setRoomPhotoCover), (state, action) => {
         state.loadingCrud = false;
-        state.error = action.payload ?? "Errore operazione";
+        state.error = action.payload ?? "Operation error";
       });
   },
 });
 
-export const { clearSelectedRoom, clearRoomError } = roomSlice.actions;
+export const { clearSelectedRoom, clearRoomError, clearRoomDayCheck } = roomSlice.actions;
 export default roomSlice.reducer;

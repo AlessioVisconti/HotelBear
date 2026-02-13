@@ -33,7 +33,6 @@ const ChargeForm: React.FC<ChargeFormProps> = ({ charge, reservationId, onSaved 
   const [formData, setFormData] = useState<Partial<ChargeDto>>(initialData);
   const [error, setError] = useState("");
 
-  // Calcolo totale arrotondato correttamente a 2 decimali
   const amount = useMemo(() => {
     const total = (formData.unitPrice || 0) * (formData.quantity || 0);
     return Math.round(total * 100) / 100;
@@ -47,7 +46,7 @@ const ChargeForm: React.FC<ChargeFormProps> = ({ charge, reservationId, onSaved 
     setError("");
 
     if (!formData.description?.trim()) {
-      setError("Descrizione obbligatoria");
+      setError("Description is required");
       return;
     }
 
@@ -62,7 +61,7 @@ const ChargeForm: React.FC<ChargeFormProps> = ({ charge, reservationId, onSaved 
 
       onSaved();
     } catch (err) {
-      setError((err as Error).message || "Errore durante il salvataggio");
+      setError((err as Error).message || "Error saving charge");
     }
   }, [dispatch, formData, amount, onSaved]);
 
@@ -71,12 +70,12 @@ const ChargeForm: React.FC<ChargeFormProps> = ({ charge, reservationId, onSaved 
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form.Group className="mb-2">
-        <Form.Label>Descrizione</Form.Label>
+        <Form.Label>Description</Form.Label>
         <Form.Control value={formData.description || ""} onChange={(e) => handleChange("description", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Tipo</Form.Label>
+        <Form.Label>Type</Form.Label>
         <Form.Select value={formData.type || "Extra"} onChange={(e) => handleChange("type", e.target.value as ChargeDto["type"])}>
           {chargeTypes.map((t) => (
             <option key={t} value={t}>
@@ -87,28 +86,28 @@ const ChargeForm: React.FC<ChargeFormProps> = ({ charge, reservationId, onSaved 
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Prezzo unitario</Form.Label>
+        <Form.Label>Unit Price</Form.Label>
         <Form.Control type="number" value={formData.unitPrice || 0} onChange={(e) => handleChange("unitPrice", Number(e.target.value))} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Quantità</Form.Label>
+        <Form.Label>Quantity</Form.Label>
         <Form.Control type="number" value={formData.quantity || 1} onChange={(e) => handleChange("quantity", Number(e.target.value))} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>IVA %</Form.Label>
+        <Form.Label>VAT %</Form.Label>
         <Form.Control type="number" value={formData.vatRate || 0} onChange={(e) => handleChange("vatRate", Number(e.target.value))} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Importo totale</Form.Label>
+        <Form.Label>Total Amount</Form.Label>
         <Form.Control type="number" value={amount.toFixed(2)} readOnly />
       </Form.Group>
 
       <div className="d-flex justify-content-end">
         <Button variant="success" onClick={handleSave}>
-          Salva
+          Save
         </Button>
       </div>
     </div>

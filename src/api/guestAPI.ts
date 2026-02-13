@@ -9,10 +9,7 @@ function getAuthHeader(): HeadersInit {
     Authorization: `Bearer ${token}`,
   };
 }
-
-/* -----------------------------
-   CREATE
------------------------------ */
+// Create
 export async function createGuestAPI(dto: GuestDto): Promise<GuestDto> {
   const res = await fetch(API_BASE, {
     method: "POST",
@@ -23,14 +20,12 @@ export async function createGuestAPI(dto: GuestDto): Promise<GuestDto> {
     body: JSON.stringify(dto),
   });
 
-  if (!res.ok) throw new Error("Errore creazione guest");
+  if (!res.ok) throw new Error("Guest creation error");
 
   return res.json();
 }
 
-/* -----------------------------
-   UPDATE
------------------------------ */
+// Update
 export async function updateGuestAPI(id: string, dto: GuestDto): Promise<GuestDto> {
   const res = await fetch(`${API_BASE}/${id}`, {
     method: "PUT",
@@ -41,14 +36,12 @@ export async function updateGuestAPI(id: string, dto: GuestDto): Promise<GuestDt
     body: JSON.stringify(dto),
   });
 
-  if (!res.ok) throw new Error("Errore update guest");
+  if (!res.ok) throw new Error("Error updating guest");
 
   return res.json();
 }
 
-/* -----------------------------
-   DELETE
------------------------------ */
+// Delete
 export async function deleteGuestAPI(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/${id}`, {
     method: "DELETE",
@@ -57,5 +50,5 @@ export async function deleteGuestAPI(id: string): Promise<void> {
     },
   });
 
-  if (!res.ok) throw new Error("Errore delete guest");
+  if (!res.ok) throw new Error("Delete guest error");
 }

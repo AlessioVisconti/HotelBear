@@ -61,7 +61,7 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
     setError("");
 
     if (!formData.firstName?.trim() || !formData.lastName?.trim()) {
-      setError("Nome e Cognome sono obbligatori");
+      setError("First and Last Name are required");
       return;
     }
 
@@ -82,7 +82,7 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
 
       for (const field of requiredFields) {
         if (!formData[field]) {
-          setError(`Campo "${field}" obbligatorio per ${formData.role}`);
+          setError(`Field "${field}" is required for ${formData.role}`);
           return;
         }
       }
@@ -91,7 +91,7 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
 
       for (const field of baseFields) {
         if (!formData[field]) {
-          setError(`Campo "${field}" obbligatorio per ${formData.role}`);
+          setError(`Field "${field}" is required for ${formData.role}`);
           return;
         }
       }
@@ -106,7 +106,7 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
 
       onSaved();
     } catch {
-      setError("Errore durante il salvataggio del guest");
+      setError("Error saving guest");
     }
   }, [dispatch, formData, guest, mainRoles, onSaved]);
 
@@ -115,17 +115,17 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form.Group className="mb-2">
-        <Form.Label>Nome</Form.Label>
+        <Form.Label>Name</Form.Label>
         <Form.Control value={formData.firstName || ""} onChange={(e) => handleChange("firstName", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Cognome</Form.Label>
+        <Form.Label>Last Name</Form.Label>
         <Form.Control value={formData.lastName || ""} onChange={(e) => handleChange("lastName", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Ruolo</Form.Label>
+        <Form.Label>Role</Form.Label>
         <Form.Select value={formData.role || "Single"} onChange={(e) => handleChange("role", e.target.value)}>
           <option value="Single">Single</option>
           <option value="HeadOfFamily">HeadOfFamily</option>
@@ -137,22 +137,22 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
 
       {/* Base fields */}
       <Form.Group className="mb-2">
-        <Form.Label>Data di nascita</Form.Label>
+        <Form.Label>Birth Date</Form.Label>
         <Form.Control type="date" value={formData.birthDate?.split("T")[0] || ""} onChange={(e) => handleChange("birthDate", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Città di nascita</Form.Label>
+        <Form.Label>Birth City</Form.Label>
         <Form.Control value={formData.birthCity || ""} onChange={(e) => handleChange("birthCity", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Cittadinanza</Form.Label>
+        <Form.Label>Citizenship</Form.Label>
         <Form.Control value={formData.citizenship || ""} onChange={(e) => handleChange("citizenship", e.target.value)} />
       </Form.Group>
 
       <Form.Group className="mb-2">
-        <Form.Label>Città di residenza</Form.Label>
+        <Form.Label>City of Residence</Form.Label>
         <Form.Control value={formData.cityOfResidence || ""} onChange={(e) => handleChange("cityOfResidence", e.target.value)} />
       </Form.Group>
 
@@ -160,43 +160,43 @@ const GuestForm: React.FC<GuestFormProps> = ({ guest, reservationId, onSaved }) 
       {showExtra && (
         <>
           <Form.Group className="mb-2">
-            <Form.Label>Codice Fiscale</Form.Label>
+            <Form.Label>Tax Code</Form.Label>
             <Form.Control value={formData.taxCode || ""} onChange={(e) => handleChange("taxCode", e.target.value)} />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Indirizzo</Form.Label>
+            <Form.Label>Address</Form.Label>
             <Form.Control value={formData.address || ""} onChange={(e) => handleChange("address", e.target.value)} />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Provincia</Form.Label>
+            <Form.Label>Province</Form.Label>
             <Form.Control value={formData.province || ""} onChange={(e) => handleChange("province", e.target.value)} />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>CAP</Form.Label>
+            <Form.Label>Postal Code</Form.Label>
             <Form.Control value={formData.postalCode || ""} onChange={(e) => handleChange("postalCode", e.target.value)} />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Tipo Documento</Form.Label>
+            <Form.Label>Document Type</Form.Label>
             <Form.Select value={formData.documentType || ""} onChange={(e) => handleChange("documentType", e.target.value)}>
               <option value="">Seleziona</option>
-              <option value="IdentityCard">Carta Identità</option>
-              <option value="Passport">Passaporto</option>
-              <option value="DrivingLicense">Patente</option>
-              <option value="ResidencePermit">Permesso di Soggiorno</option>
+              <option value="IdentityCard">Identity Card</option>
+              <option value="Passport">Passport</option>
+              <option value="DrivingLicense">Driving License</option>
+              <option value="ResidencePermit">Residence Permit</option>
             </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Numero Documento</Form.Label>
+            <Form.Label>Document Number</Form.Label>
             <Form.Control value={formData.documentNumber || ""} onChange={(e) => handleChange("documentNumber", e.target.value)} />
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label>Scadenza Documento</Form.Label>
+            <Form.Label>Document Expiration</Form.Label>
             <Form.Control
               type="date"
               value={formData.documentExpiration?.split("T")[0] || ""}

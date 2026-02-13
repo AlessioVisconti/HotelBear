@@ -12,17 +12,17 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ show, itemName,
   return (
     <Modal show={show} onHide={onCancel} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Conferma eliminazione</Modal.Title>
+        <Modal.Title>Confirm delete</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        Sei sicuro di voler eliminare "<strong>{itemName}</strong>"?
+        Are you sure you want to delete? "<strong>{itemName}</strong>"?
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onCancel}>
-          Annulla
+          Cancel
         </Button>
         <Button variant="danger" onClick={onConfirm}>
-          Elimina
+          Delete
         </Button>
       </Modal.Footer>
     </Modal>

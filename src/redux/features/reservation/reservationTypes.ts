@@ -1,5 +1,7 @@
 import type { ChargeDto } from "../charge/chargeTypes";
 import type { GuestDto } from "../guest/guestTypes";
+import type { InvoiceDto } from "../invoice/invoiceTypes";
+import type { PaymentDto } from "../payment/paymentTypes";
 
 export interface ReservationListDto {
   id: string;
@@ -8,8 +10,8 @@ export interface ReservationListDto {
   email: string;
   roomId: string;
   roomNumber: string;
-  checkIn: string; // ISO string
-  checkOut: string; // ISO string
+  checkIn: string;
+  checkOut: string;
   status: "Pending" | "Confirmed" | "Cancelled" | "CheckedIn" | "CheckedOut";
 }
 
@@ -22,6 +24,7 @@ export interface ReservationDetailDto {
   roomNumber: string;
   checkIn: string;
   checkOut: string;
+  isRoomInvoiced: boolean;
   status: string;
   note?: string;
   paymentStatus: "NotPaid" | "PartiallyPaid" | "Paid";
@@ -36,25 +39,6 @@ export interface ReservationDetailDto {
   updatedAt?: string;
   deletedBy?: string;
   deletedAt?: string;
-}
-
-export interface PaymentDto {
-  id: string;
-  reservationId: string;
-  amount: number;
-  type: string;
-  status: string;
-  paymentMethodCode?: string;
-  paidAt?: string;
-}
-
-export interface InvoiceDto {
-  id: string;
-  reservationId: string;
-  invoiceNumber?: string;
-  status?: string;
-  totalAmount?: number;
-  balanceDue?: number;
 }
 
 export interface CreateReservationDto {

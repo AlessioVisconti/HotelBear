@@ -13,12 +13,8 @@ const RoomsPage: React.FC = React.memo(() => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { list, loadingList } = useSelector((state: RootState) => state.room);
-
-  // Stato modale EDIT
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-
-  // Stato modale CREATE
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
@@ -63,10 +59,10 @@ const RoomsPage: React.FC = React.memo(() => {
     <Container className="mt-4">
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="fw-bold">Gestione Camere</h2>
+        <h2 className="fw-bold">Room Management</h2>
 
         <Button variant="success" onClick={handleOpenCreateModal}>
-          + Aggiungi Camera
+          + Add Room
         </Button>
       </div>
 
@@ -82,10 +78,10 @@ const RoomsPage: React.FC = React.memo(() => {
         <Table bordered hover responsive>
           <thead className="table-light">
             <tr>
-              <th>Numero</th>
-              <th>Nome</th>
-              <th>Prezzo/notte</th>
-              <th className="text-end">Azioni</th>
+              <th>Number</th>
+              <th>Name</th>
+              <th>Price for night</th>
+              <th className="text-end">Actions</th>
             </tr>
           </thead>
 

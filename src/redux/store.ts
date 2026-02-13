@@ -5,6 +5,9 @@ import reservationReducer from "./features/reservation/reservationSlice";
 import roomReducer from "./features/room/roomSlice";
 import guestReducer from "./features/guest/guestSlice";
 import chargeReducer from "./features/charge/chargeSlice";
+import paymentReducer from "./features/payment/paymentSlice";
+import paymentMethodReducer from "./features/paymentMethod/paymentMethodSlice";
+import invoiceReducer from "./features/invoice/invoiceSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +17,9 @@ export const store = configureStore({
     room: roomReducer,
     guest: guestReducer,
     charge: chargeReducer,
+    payment: paymentReducer,
+    paymentMethod: paymentMethodReducer,
+    invoice: invoiceReducer,
   },
 });
 

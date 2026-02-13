@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "./redux/store";
 import { logout, setAuthFromToken } from "./redux/features/auth/authSlice";
-import { getToken, getRole, getExpiration } from "./utils/token";
+import { getToken, getExpiration } from "./utils/token";
 
 interface AppWrapperProps {
   children: ReactNode;
@@ -14,24 +14,22 @@ const AppWrapper: React.FC<AppWrapperProps> = ({ children }) => {
   const navigate = useNavigate();
   const { token, expiration } = useSelector((state: RootState) => state.auth);
 
-  // Sincronizza Redux con i cookie all'avvio
+  // Sync Redux with cookies on startup
   useEffect(() => {
     const cookieToken = getToken();
-    if (cookieToken && !token) {
-      const cookieRole = getRole() || "";
-      const cookieExp = getExpiration() || null;
+    const cookieExp = getExpiration() || null;
 
+    if (cookieToken && !token) {
       dispatch(
         setAuthFromToken({
           token: cookieToken,
-          role: cookieRole,
           expiration: cookieExp,
         }),
       );
     }
   }, [dispatch, token]);
 
-  // Logout automatico alla scadenza del token
+  // Automatic logout when token expires
   useEffect(() => {
     if (!token || !expiration) return;
 

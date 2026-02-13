@@ -5,14 +5,14 @@ const API_BASE = "https://localhost:7124/api/charge";
 
 function getAuthHeader(): HeadersInit {
   const token = getToken();
-  if (!token) throw new Error("Utente non autenticato");
+  if (!token) throw new Error("Unauthenticated user");
   return { Authorization: `Bearer ${token}` };
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "Errore nella richiesta Charge");
+    throw new Error(errorData.message || "Charge request error");
   }
   return response.json();
 }
@@ -48,6 +48,6 @@ export const deleteChargeAPI = async (id: string): Promise<void> => {
   });
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.message || "Errore eliminazione Charge");
+    throw new Error(errorData.message || "Charge deletion error");
   }
 };

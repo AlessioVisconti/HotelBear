@@ -1,8 +1,26 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import type { AuthState, LoginDto, AuthResponseDto } from "./authTypes";
-import { loginAPI } from "../../../api/authAPI";
+import type { AuthState, LoginDto, AuthResponseDto, RegisterCustomerDto, CreateStaffUserDto, UserDto } from "./authTypes";
+import { loginAPI, registerCustomerAPI, registerStaffAPI, getAllStaffAPI, deactivateStaffAPI, reactivateStaffAPI } from "../../../api/authAPI";
 import { setToken, removeToken, getToken, setRole, getRole, setExpiration, getExpiration } from "../../../utils/token";
 
+// Decode JWT
+function parseJwt(token: string) {
+  try {
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+// Initial state
 const initialState: AuthState = {
   token: getToken(),
   username: "",
@@ -11,20 +29,83 @@ const initialState: AuthState = {
   lastName: "",
   role: getRole() || "",
   expiration: getExpiration() || null,
+  staffList: [],
   loading: false,
   error: null,
 };
 
-// Async thunk per login
+// Login
 export const login = createAsyncThunk<AuthResponseDto, LoginDto>("auth/login", async (dto, { rejectWithValue }) => {
   try {
-    const response = await loginAPI(dto);
-    return response;
-  } catch (err: unknown) {
-    if (err instanceof Error) return rejectWithValue(err.message);
-    return rejectWithValue("Errore durante il login");
+    return await loginAPI(dto);
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
   }
 });
+
+// Register Customer
+export const registerCustomer = createAsyncThunk<AuthResponseDto, RegisterCustomerDto>("auth/registerCustomer", async (dto, { rejectWithValue }) => {
+  try {
+    return await registerCustomerAPI(dto);
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+// Register Staff
+export const registerStaff = createAsyncThunk<AuthResponseDto, CreateStaffUserDto, { state: { auth: AuthState } }>(
+  "auth/registerStaff",
+  async (dto, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
+      if (!token) return rejectWithValue("Missing admin token");
+      return await registerStaffAPI(dto, token);
+    } catch (err) {
+      return rejectWithValue((err as Error).message);
+    }
+  },
+);
+
+// Get Staff List
+export const getAllStaff = createAsyncThunk<UserDto[], void, { state: { auth: AuthState } }>("auth/getAllStaff", async (_, { getState, rejectWithValue }) => {
+  try {
+    const token = getState().auth.token;
+    if (!token) return rejectWithValue("Missing admin token");
+    return await getAllStaffAPI(token);
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+// Deactivate Staff
+export const deactivateStaff = createAsyncThunk<string, string, { state: { auth: AuthState } }>(
+  "auth/deactivateStaff",
+  async (staffId, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
+      if (!token) return rejectWithValue("Missing admin token");
+      await deactivateStaffAPI(staffId, token);
+      return staffId;
+    } catch (err) {
+      return rejectWithValue((err as Error).message);
+    }
+  },
+);
+
+// Reactivate Staff
+export const reactivateStaff = createAsyncThunk<string, string, { state: { auth: AuthState } }>(
+  "auth/reactivateStaff",
+  async (staffId, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
+      if (!token) return rejectWithValue("Missing admin token");
+      await reactivateStaffAPI(staffId, token);
+      return staffId;
+    } catch (err) {
+      return rejectWithValue((err as Error).message);
+    }
+  },
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -38,66 +119,72 @@ const authSlice = createSlice({
       state.lastName = "";
       state.role = "";
       state.expiration = null;
+      state.staffList = [];
 
-      // Rimuovi cookie
       removeToken();
       setRole("");
       setExpiration(null);
     },
-    setAuthFromToken(
-      state,
-      action: PayloadAction<{
-        token: string;
-        username?: string;
-        email?: string;
-        firstName?: string;
-        lastName?: string;
-        role?: string;
-        expiration?: string | null;
-      }>,
-    ) {
+
+    // Set auth from token (AppWrapper)
+    setAuthFromToken(state, action: PayloadAction<{ token: string; expiration?: string | null }>) {
       state.token = action.payload.token;
-      state.username = action.payload.username || "";
-      state.email = action.payload.email || "";
-      state.firstName = action.payload.firstName || "";
-      state.lastName = action.payload.lastName || "";
-      state.role = action.payload.role || "";
+
+      const decoded = parseJwt(action.payload.token);
+      if (decoded) {
+        const fullName = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "";
+        const [firstName, ...lastNameParts] = fullName.split(" ");
+        state.firstName = firstName || "";
+        state.lastName = lastNameParts.join(" ") || "";
+        state.email = decoded["email"] || "";
+        state.role = decoded["role"] || "";
+      }
+
       state.expiration = action.payload.expiration || null;
 
-      // Salva nei cookie
-      const expirationMinutes = action.payload.expiration
-        ? Math.ceil((new Date(action.payload.expiration).getTime() - new Date().getTime()) / 60000)
-        : undefined;
-      setToken(action.payload.token, expirationMinutes);
-      setRole(action.payload.role || "");
-      setExpiration(action.payload.expiration || null);
+      setToken(action.payload.token);
+      setRole(state.role);
+      setExpiration(state.expiration);
     },
   },
+
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action: PayloadAction<AuthResponseDto>) => {
-        state.loading = false;
+      // Login
+      .addCase(login.fulfilled, (state, action) => {
         state.token = action.payload.token;
-        state.username = action.payload.username;
-        state.email = action.payload.email;
-        state.firstName = action.payload.firstName;
-        state.lastName = action.payload.lastName;
-        state.role = action.payload.role;
         state.expiration = action.payload.expiration;
 
-        // Salva tutto nei cookie
-        const expirationMinutes = Math.ceil((new Date(action.payload.expiration).getTime() - new Date().getTime()) / 60000);
-        setToken(action.payload.token, expirationMinutes);
-        setRole(action.payload.role);
-        setExpiration(action.payload.expiration);
+        const decoded = parseJwt(action.payload.token);
+        if (decoded) {
+          const fullName = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "";
+          const [firstName, ...lastNameParts] = fullName.split(" ");
+          state.firstName = firstName || "";
+          state.lastName = lastNameParts.join(" ") || "";
+          state.email = decoded["email"] || "";
+          state.role = decoded["role"] || "";
+        }
+
+        setToken(action.payload.token);
+        setRole(state.role);
+        setExpiration(state.expiration);
       })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+
+      // Get staff
+      .addCase(getAllStaff.fulfilled, (state, action) => {
+        state.staffList = action.payload;
+      })
+
+      // Deactivate
+      .addCase(deactivateStaff.fulfilled, (state, action) => {
+        const staff = state.staffList.find((u) => u.id === action.payload);
+        if (staff) staff.isActive = false;
+      })
+
+      // Reactivate
+      .addCase(reactivateStaff.fulfilled, (state, action) => {
+        const staff = state.staffList.find((u) => u.id === action.payload);
+        if (staff) staff.isActive = true;
       });
   },
 });

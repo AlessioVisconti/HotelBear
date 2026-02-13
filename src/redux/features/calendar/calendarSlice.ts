@@ -14,7 +14,6 @@ const initialState: CalendarState = {
   error: null,
 };
 
-// Async thunk per fetch calendario
 export const getRoomCalendar = createAsyncThunk<RoomCalendarDto[], { startDate?: string; endDate?: string }>(
   "calendar/fetch",
   async (params, { rejectWithValue }) => {
@@ -23,7 +22,7 @@ export const getRoomCalendar = createAsyncThunk<RoomCalendarDto[], { startDate?:
       return data;
     } catch (err: unknown) {
       if (err instanceof Error) return rejectWithValue(err.message);
-      return rejectWithValue("Errore sconosciuto");
+      return rejectWithValue("Unknown error");
     }
   },
 );

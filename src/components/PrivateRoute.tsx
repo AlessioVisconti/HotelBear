@@ -11,12 +11,12 @@ interface Props {
 const PrivateRoute = ({ children, allowedRoles }: Props) => {
   const { token, role } = useSelector((state: RootState) => state.auth);
 
-  //Non loggato
+  //Not logged in
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  //Loggato ma ruolo non valido
+  //Logged in but role invalid
   if (allowedRoles && (!role || !allowedRoles.includes(role))) {
     return <Navigate to="/" replace />;
   }

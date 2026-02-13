@@ -44,6 +44,14 @@ export interface UpdateRoomDto {
   priceForNight?: number;
 }
 
+// tipo per il check della disponibilità di un giorno
+export interface RoomDayClickResultDto {
+  isAvailable: boolean;
+  reservationId?: string;
+  reservationStatus?: "Pending" | "Confirmed" | "Cancelled" | "CheckedIn" | "CheckedOut";
+  message?: string;
+}
+
 export interface RoomState {
   list: RoomListDto[];
   selected: RoomDetailDto | null;
@@ -51,4 +59,8 @@ export interface RoomState {
   loadingDetail: boolean;
   loadingCrud: boolean;
   error: string | null;
+  roomDayCheck?: RoomDayClickResultDto | null;
+  loadingCheck?: boolean;
+  availableRooms: RoomListDto[];
+  loadingAvailable: boolean;
 }

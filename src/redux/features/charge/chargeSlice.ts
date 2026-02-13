@@ -13,7 +13,7 @@ export const createCharge = createAsyncThunk<ChargeDto, ChargeDto>("charge/creat
     return await createChargeAPI(dto);
   } catch (err: unknown) {
     if (err instanceof Error) return rejectWithValue(err.message);
-    return rejectWithValue("Errore creazione Charge");
+    return rejectWithValue("Charge creation error");
   }
 });
 
@@ -22,7 +22,7 @@ export const updateCharge = createAsyncThunk<ChargeDto, { id: string; dto: Charg
     return await updateChargeAPI(id, dto);
   } catch (err: unknown) {
     if (err instanceof Error) return rejectWithValue(err.message);
-    return rejectWithValue("Errore aggiornamento Charge");
+    return rejectWithValue("Charge update error");
   }
 });
 
@@ -32,7 +32,7 @@ export const deleteCharge = createAsyncThunk<string, string>("charge/delete", as
     return id;
   } catch (err: unknown) {
     if (err instanceof Error) return rejectWithValue(err.message);
-    return rejectWithValue("Errore eliminazione Charge");
+    return rejectWithValue("Charge deletion error");
   }
 });
 

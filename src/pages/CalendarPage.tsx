@@ -47,12 +47,10 @@ const CalendarPage: React.FC = () => {
     dispatch(getRoomCalendar({ startDate, endDate: endDate.toISOString() }));
   };
 
-  // Fetch iniziale
   useEffect(() => {
     fetchCalendar();
   }, [dispatch, calendarStart]);
 
-  // Listener evento globale per ricaricare calendario
   useEffect(() => {
     const handleRefresh = () => fetchCalendar();
     window.addEventListener("refreshCalendar", handleRefresh);
@@ -85,7 +83,7 @@ const CalendarPage: React.FC = () => {
 
   return (
     <Container className="mt-5">
-      <h2 style={{ textTransform: "uppercase" }}>Calendario Stanze</h2>
+      <h2 style={{ textTransform: "uppercase" }}>Room Calendar</h2>
 
       <div className="d-flex mb-3 align-items-center flex-wrap">
         <InputGroup style={{ maxWidth: "200px" }} className="mb-2">
@@ -107,7 +105,7 @@ const CalendarPage: React.FC = () => {
         <Table bordered hover className="text-center">
           <thead>
             <tr>
-              <th style={{ backgroundColor: "#e9ecef", position: "sticky", left: 0, zIndex: 2 }}>Stanza</th>
+              <th style={{ backgroundColor: "#e9ecef", position: "sticky", left: 0, zIndex: 2 }}>Room</th>
               {days.map((day) => {
                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                 return (
@@ -177,7 +175,7 @@ const CalendarPage: React.FC = () => {
         show={editModal.show}
         onHide={() => setEditModal({ ...editModal, show: false })}
         reservationId={editModal.reservationId}
-        onUpdated={handleCalendarRefresh} // aggiorna automaticamente
+        onUpdated={handleCalendarRefresh}
       />
     </Container>
   );
