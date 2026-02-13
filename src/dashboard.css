@@ -21,7 +21,7 @@ body {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Immagine con zoom leggero al passaggio del mouse */
+/* Immagine con zoom al passaggio del mouse */
 .card-img-wrapper {
   overflow: hidden;
   position: relative;
@@ -35,7 +35,6 @@ body {
   transform: scale(1.08);
 }
 
-/* Badge del prezzo moderno */
 .price-badge {
   background: rgba(0, 0, 0, 0.75) !important;
   backdrop-filter: blur(4px);
@@ -44,16 +43,15 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* Search Bar "Floating" */
+/* Search  */
 .search-container {
   background: white;
   border-radius: 1.5rem !important;
   padding: 1.5rem;
-  margin-top: -30px; /* Se vuoi sovrapporla leggermente a un header */
+  margin-top: -30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Bottoni responsive e curati */
 .btn-custom {
   padding: 10px 20px;
   font-weight: 600;
@@ -62,7 +60,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* Stile per i campi data */
 .form-control:focus {
   border-color: var(--hotel-primary);
   box-shadow: 0 0 0 0.25rem rgba(26, 35, 126, 0.15);
